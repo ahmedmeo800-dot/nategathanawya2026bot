@@ -103,3 +103,24 @@ async def search(update: Update, context: ContextTypes.DEFAULT_TYPE):
     conn.close()
 
     await update.message.reply_text(message)
+app = Application.builder().token(TOKEN).build()
+
+app.add_handler(CommandHandler("start", start))
+
+app.add_handler(
+    MessageHandler(
+        filters.Document.ALL,
+        upload_excel,
+    )
+)
+
+app.add_handler(
+    MessageHandler(
+        filters.TEXT & ~filters.COMMAND,
+        search,
+    )
+)
+
+print("Bot Started...")
+
+app.run_polling()
