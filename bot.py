@@ -70,3 +70,36 @@ async def upload_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "✅ تم تحديث قاعدة البيانات بنجاح."
     )
+async def search(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if not database_exists():
+        await update.message.reply_text("❌ لم يتم رفع ملف النتائج بعد.")
+        return
+
+    seat_number = update.message.text.strip()
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT * FROM students WHERE `رقم الجلوس` = ?",
+        (seat_number,),
+    )
+
+    row = cursor.fetchone()
+
+    if row is None:
+        conn.close()
+        await update.message.reply_text("❌ رقم الجلوس غير موجود.")
+        return
+
+    columns = [item[0] for item in cursor.description]
+
+    message = "📋 نتيجة الطالب\n\n"
+
+    for col, value in zip(columns, row):
+        message += f"🔹 {col}: {value}\n"
+
+    conn.close()
+
+    await update.message.reply_text(message)
