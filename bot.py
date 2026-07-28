@@ -49,3 +49,22 @@ async def search(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message += f"🔹 {col}: {value}\n"
 
     await update.message.reply_text(message)
+async def upload_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if update.effective_user.id != ADMIN_ID:
+        await update.message.reply_text("❌ ليس لديك صلاحية رفع الملف.")
+        return
+
+    document = update.message.document
+
+    if not document.file_name.endswith(".xlsx"):
+        await update.message.reply_text("❌ أرسل ملف Excel بصيغة .xlsx")
+        return
+
+    file = await document.get_file()
+
+    await file.download_to_drive(EXCEL_FILE)
+
+    load_data()
+
+    await update.message.reply_text("✅ تم تحديث قاعدة البيانات بنجاح.")
