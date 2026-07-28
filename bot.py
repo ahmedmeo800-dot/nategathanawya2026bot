@@ -68,3 +68,24 @@ async def upload_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     load_data()
 
     await update.message.reply_text("✅ تم تحديث قاعدة البيانات بنجاح.")
+app = Application.builder().token(TOKEN).build()
+
+app.add_handler(CommandHandler("start", start))
+
+app.add_handler(
+    MessageHandler(
+        filters.Document.ALL,
+        upload_excel
+    )
+)
+
+app.add_handler(
+    MessageHandler(
+        filters.TEXT & ~filters.COMMAND,
+        search
+    )
+)
+
+print("Bot Started...")
+
+app.run_polling()
